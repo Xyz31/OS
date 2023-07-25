@@ -54,6 +54,8 @@ int main() {
 # 2nd SJF 
 
 ```c
+
+
 #include <stdio.h>
 
 struct Process {
@@ -61,16 +63,16 @@ struct Process {
     int burst_time;
     int waiting_time;
     int turnaround_time;
-};
+} p[10];
 
-void sjf_scheduling(struct Process p[], int n) {
+void sjf_scheduling(int n) {
     struct Process temp;
 
     // Sort processes based on burst time using Selection Sort
     for (int i = 0; i < n - 1; i++) {
         for (int j = i + 1; j < n; j++) {
             if ((p[i].burst_time > p[j].burst_time) ||
-                (p[i].burst_time == p[j].burst_time && p[i].pid > p[j].pid)) {
+                    (p[i].burst_time == p[j].burst_time && p[i].pid > p[j].pid)) {
                 temp = p[i];
                 p[i] = p[j];
                 p[j] = temp;
@@ -80,7 +82,8 @@ void sjf_scheduling(struct Process p[], int n) {
 
     // Calculate waiting time and turnaround time
     p[0].waiting_time = 0;
-    for (int i = 0; i < n; i++) {
+    p[0].turnaround_time = p[0].burst_time;
+    for (int i = 1; i < n; i++) {
         p[i].waiting_time = p[i - 1].waiting_time + p[i - 1].burst_time;
         p[i].turnaround_time = p[i].waiting_time + p[i].burst_time;
     }
@@ -93,7 +96,7 @@ int main() {
     printf("Enter the number of processes: ");
     scanf("%d", &n);
 
-    struct Process p[n];
+    // struct Process p[n];
 
     for (int i = 0; i < n; i++) {
         printf("Enter the burst time for process P%d (in ms): ", i + 1);
@@ -101,7 +104,7 @@ int main() {
         p[i].pid = i + 1;
     }
 
-    sjf_scheduling(p, n);
+    sjf_scheduling(n);
 
     printf("\nSJF Scheduling\n\n");
     printf("Process  Burst Time  Turnaround Time  Waiting Time\n");
