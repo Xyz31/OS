@@ -508,6 +508,7 @@ int main() {
 
 ```c
 
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -527,11 +528,11 @@ int main() {
     
     printf("Enter the initial head position: ");
     scanf("%d", &head);
-    queue[n] = head;
+    queue[0] = head;
     
     printf("FROM\tTO\tHEAD MOVEMENTS\n");
-    for (i = 0; i < n; i++) {
-        diff = abs(queue[i + 1] - queue[i]);
+    for (i = 1; i < n; i++) {
+        diff = abs(queue[i] - queue[i-1]);
         mov += diff;
         printf("%d\t%d\t%d\n", queue[i], queue[i + 1], mov);
     }
@@ -540,7 +541,6 @@ int main() {
 
     return 0;
 }
-
 
 ```
 
