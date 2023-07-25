@@ -427,81 +427,88 @@ int main() {
 #define MAX_PAGES 30
 
 int main() {
-    int no_of_frames, no_of_pages, frames[MAX_FRAMES], pages[MAX_PAGES], i, j, faults = 0;
-    
+    int num_frames, num_pages, frames[MAX_FRAMES], pages[MAX_PAGES], next_occurrence[MAX_FRAMES];
+    int i, j, k, faults = 0;
+
     printf("Enter number of frames: ");
-    scanf("%d", &no_of_frames);
-    
+    scanf("%d", &num_frames);
+
     printf("Enter number of pages: ");
-    scanf("%d", &no_of_pages);
-    
+    scanf("%d", &num_pages);
+
     printf("Enter page reference string: ");
-    for (i = 0; i < no_of_pages; ++i) {
+    for (i = 0; i < num_pages; ++i) {
         scanf("%d", &pages[i]);
     }
-    
-    // Initialize frames to -1, indicating empty frames
-    for (i = 0; i < no_of_frames; ++i) {
+
+    for (i = 0; i < num_frames; ++i) {
         frames[i] = -1;
     }
-    
-    // Use a hash map to track page presence in frames
-    int page_present[MAX_FRAMES] = {0};
-    
-    // Perform page replacement for each page in the reference string
-    for (i = 0; i < no_of_pages; ++i) {
-        int page = pages[i];
-        
-        // Check if the page is already present in one of the frames
-        int page_found = page_present[page];
-        
-        // If the page is not found in any frame, perform page replacement
+
+    for (i = 0; i < num_pages; ++i) {
+        int page_to_replace = -1;
+
+        // Check if the page is already present in frames
+        int page_found = 0;
+        for (j = 0; j < num_frames; ++j) {
+            if (frames[j] == pages[i]) {
+                page_found = 1;
+                break;
+            }
+        }
+
         if (!page_found) {
-            int empty_frame = -1;
-            
-            // Find an empty frame to place the page
-            for (j = 0; j < no_of_frames; ++j) {
+            // Find an empty frame if available
+            for (j = 0; j < num_frames; ++j) {
                 if (frames[j] == -1) {
-                    empty_frame = j;
+                    faults++;
+                    frames[j] = pages[i];
+                    page_found = 1;
                     break;
                 }
             }
-            
-            // If an empty frame is available, use it for the page
-            if (empty_frame != -1) {
-                frames[empty_frame] = page;
-                page_present[page] = 1;
-            } else {
-                int max_pos = -1, pos = -1;
-                
-                // Find the page with the maximum position for replacement
-                for (j = 0; j < no_of_frames; ++j) {
-                    if (max_pos == -1 || page_present[frames[j]] == 0) {
-                        pos = j;
-                        max_pos = page_present[frames[j]];
+        }
+
+        if (!page_found) {
+            // Find the page that will not be used for the longest duration in the future
+            for (j = 0; j < num_frames; ++j) {
+                next_occurrence[j] = -1;
+                for (k = i + 1; k < num_pages; ++k) {
+                    if (frames[j] == pages[k]) {
+                        next_occurrence[j] = k;
+                        break;
                     }
                 }
-                
-                // Replace the page in the selected frame
-                page_present[frames[pos]] = 0;
-                frames[pos] = page;
-                page_present[page] = 1;
             }
-            
-            faults++; // Increment page fault count
+
+            // Select the frame that will not be used for the longest duration
+            int max_next_occurrence = next_occurrence[0];
+            page_to_replace = 0;
+            for (j = 1; j < num_frames; ++j) {
+                if (next_occurrence[j] == -1) {
+                    page_to_replace = j;
+                    break;
+                } else if (next_occurrence[j] > max_next_occurrence) {
+                    max_next_occurrence = next_occurrence[j];
+                    page_to_replace = j;
+                }
+            }
+
+            frames[page_to_replace] = pages[i];
+            faults++;
         }
-        
-        // Print the contents of the frames after each page replacement
+
+        // Print frames (optional)
         printf("\n");
-        for (j = 0; j < no_of_frames; ++j) {
+        for (j = 0; j < num_frames; ++j) {
             printf("%d\t", frames[j]);
         }
     }
-    
-    // Print the total number of page faults
+
     printf("\n\nTotal Page Faults = %d", faults);
     return 0;
 }
+
 
 ```
 
